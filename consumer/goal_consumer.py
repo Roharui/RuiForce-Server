@@ -14,19 +14,15 @@ from consumer.base_consumer import BaseConsumer
 
 def insertData(uid, file, predict, _max):
     with Session(engine) as session:
-        # from an opened local file
         session.add(GoalTable(uuid=uid, predict=str(predict), max=_max, file=file))
-
         session.commit()
 
 
 def updateData(uid, real):
     with Session(engine) as session:
-        # from an opened local file
         session.execute(
             update(GoalTable).where(GoalTable.uuid == uid).values(real=real)
         )
-
         session.commit()
 
 
