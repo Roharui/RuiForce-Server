@@ -2,9 +2,10 @@ import os
 
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from consumer.goal_consumer import GoalConsumer
 
-load_dotenv()
 
 ENV = {**os.environ}
 

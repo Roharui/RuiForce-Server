@@ -15,6 +15,8 @@ class GoalTable(Base):
     __tablename__ = "goal"
 
     uuid = Column(String, primary_key=True)
+    phase = Column(String, nullable=False)
+    turn = Column(Integer, nullable=False)
     file = Column(FileField)
     predict = Column(String, nullable=False)
     max = Column(Integer, nullable=False)

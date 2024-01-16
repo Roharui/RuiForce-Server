@@ -11,10 +11,21 @@ from db.goal.goal_table import GoalTable
 
 from consumer.base_consumer import BaseConsumer
 
+# from model.goal_model import GoalModel
 
-def insertData(uid, file, predict, _max):
+
+def insertData(uid, phase, turn, file, predict, _max):
     with Session(engine) as session:
-        session.add(GoalTable(uuid=uid, predict=str(predict), max=_max, file=file))
+        session.add(
+            GoalTable(
+                uuid=uid,
+                phase=phase,
+                turn=turn,
+                predict=str(predict),
+                max=_max,
+                file=file,
+            )
+        )
         session.commit()
 
 
@@ -29,22 +40,28 @@ def updateData(uid, real):
 class GoalConsumer(BaseConsumer):
     def __init__(self, ENV):
         super().__init__(ENV)
+        # self.model = GoalModel()
 
     def on_message(channel, method_frame, header_frame, body):
         data = json.loads(body.decode())
 
         if data["type"] == "request":
             uid = str(uuid.uuid4())
+            turn = data["turn"]
+            phase = data["phase"] if "phase" in data.keys() else str(uuid.uuid4())
+
             f = open(data["filename"], "rb")
             predict = [random() for _ in range(5)]
             _max = predict.index(max(predict))
 
-            insertData(uid, f, predict, _max)
+            insertData(uid, phase, turn, f, predict, _max)
 
             channel.basic_publish(
                 "",
                 routing_key=header_frame.reply_to,
-                body=json.dumps({"uuid": uid, "angle": _max - 3, "ok": True}),
+                body=json.dumps(
+                    {"phase": phase, "uuid": uid, "angle": _max - 3, "ok": True}
+                ),
             )
 
         if data["type"] == "result":
